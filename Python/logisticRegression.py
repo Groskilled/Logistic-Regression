@@ -31,8 +31,7 @@ def main():
     Y = np.array(Y)
     X = np.insert(np.array(X), 0, 1.0, axis=1)
     Theta = np.zeros((X.shape[1], 1))
-    print(cost(Theta, X, Y))
-    print(gradient(Theta, X, Y))
+    print "For Theta = \n", Theta, "\ncost is : \n", cost(Theta, X, Y), "\nand grad is :\n", gradient(Theta, X, Y)
 
 if __name__ == "__main__":
     main()
