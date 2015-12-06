@@ -1,37 +1,34 @@
 #!/usr/bin/python
 
-import csv
-import matplotlib.pyplot as plt
-import math
+from __future__ import division
 import numpy as np
-import scipy.optimize as opt
-from scipy.optimize import fmin
+import matplotlib.pyplot as plt
+from scipy import optimize
+from numpy import c_, mat, e
 
-def sigmoid(X):
-    return (1 / (1 + np.exp(-X)))
+def sigmoid(z):
+    g = 1. / (1 + e**(-z.A))
+    return g
 
 def cost(Theta, X, Y):
-    tmp = sigmoid(np.dot(X, Theta))
-    return (-Y * np.log(tmp) - (1 - Y) * np.log(1 - tmp)).mean()
-
-def gradient(Theta, X, Y):
-    hyp = sigmoid(np.dot(X, Theta)) - Y
-    grad = Theta
-    for i in range(X.shape[1]):
-      grad[i] = (hyp * X[:,i].reshape(len(Y), 1)).mean()
-    return grad
+    tmp = sigmoid(X.dot(c_[Theta]))
+    left = -Y.T.dot(np.log(tmp))
+    right = (1 - Y.T).dot(np.log(1 - tmp))
+    ret = 1. / X.shape[0] * (left - right)
+    return ret[0][0]
 
 def main():
-    cr = csv.reader(open("../Data.csv","rb"))
-    X = []
-    Y = []
-    for row in cr:
-        X.append([float(row[0]), float(row[1])])
-        Y.append([float(row[2])])
-    Y = np.array(Y)
-    X = np.insert(np.array(X), 0, 1.0, axis=1)
-    Theta = np.zeros((X.shape[1], 1))
-    print "For Theta = \n", Theta, "\ncost is : \n", cost(Theta, X, Y), "\nand grad is :\n", gradient(Theta, X, Y)
+    data = np.loadtxt("ex2data1.txt", delimiter=',')
+    X = mat(c_[data[:, :2]])
+    Y = c_[data[:, 2]]
+    m , n = X.shape
+    X = c_[np.ones(m), X]
+    Theta = np.zeros(n + 1)
+    ret, grad = cost(Theta, X, Y), None
+    print "For Theta = \n", Theta, "\ncost is : \n", ret
+    print grad
+    options = {'full_output': True, 'maxiter': 400}
+    theta, ret, _, _, _ = optimize.fmin(lambda t: cost(t, X, Y), Theta, **options)
 
 if __name__ == "__main__":
     main()
